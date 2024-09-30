@@ -74,6 +74,28 @@ const loginUser = (userData) => {
     });
 };
 
+// For Getting Selected Data From Firestore Database
+const getData = (collectionName, uid) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const dataArr = [];
+            const q = query(collection(db, collectionName), where("uid", "==", uid));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                dataArr.push(doc.data());
+                console.log(dataArr);
+            });
+            if (dataArr.length > 0) {
+                resolve(dataArr);
+            } else {
+                reject("No data found");
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 // For Uploading Image
 const uploadImage = async (file, email) => {
     try {
@@ -91,5 +113,6 @@ export {
     db,
     signUpUser,
     loginUser,
+    getData,
     uploadImage,
 }
