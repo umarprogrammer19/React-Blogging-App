@@ -2,12 +2,16 @@ import app from "./firebaseConfig";
 import {
     getAuth,
     createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
 } from "firebase/auth";
 
 import {
     addDoc,
     collection,
-    getFirestore
+    getDocs,
+    getFirestore,
+    query,
+    where
 } from "firebase/firestore";
 
 import {
@@ -42,6 +46,34 @@ const signUpUser = (userData) => {
     });
 };
 
+// For User Login
+const loginUser = (userData) => {
+    return new Promise((resolve, reject) => {
+        signInWithEmailAndPassword(auth, userData.email, userData.password)
+            .then(async () => {
+                try {
+                    const q = query(
+                        collection(db, "users"),
+                        where("uid", "==", auth.currentUser.uid)
+                    );
+                    const querySnapshot = await getDocs(q);
+                    if (!querySnapshot.empty) {
+                        querySnapshot.forEach((doc) => {
+                            resolve(doc.data());
+                        });
+                    } else {
+                        reject("User data not found");
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            })
+            .catch((error) => {
+                reject(error.message);
+            });
+    });
+};
+
 // For Uploading Image
 const uploadImage = async (file, email) => {
     try {
@@ -58,5 +90,6 @@ export {
     auth,
     db,
     signUpUser,
+    loginUser,
     uploadImage,
 }
