@@ -96,6 +96,24 @@ const getData = (collectionName, uid) => {
     });
 };
 
+// Get All Data Selected Collection From Firestore Database
+const getAllData = (colName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const dataArr = [];
+            const querySnapshot = await getDocs(collection(db, colName));
+            querySnapshot.forEach((doc) => {
+                const obj = { ...doc.data(), documentId: doc.id };
+                dataArr.push(obj);
+            });
+            resolve(dataArr);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+
 // For Uploading Image
 const uploadImage = async (file, email) => {
     try {
@@ -114,5 +132,6 @@ export {
     signUpUser,
     loginUser,
     getData,
+    getAllData,
     uploadImage,
 }
