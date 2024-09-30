@@ -139,7 +139,7 @@ export default function Dashboard() {
         <div className="min-h-screen bg-gray-50 p-6">
             <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {error && <p className="text-red-600 text-[18px] mb-4">{error}</p>}
 
             {/* Blog Publishing Form */}
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -194,13 +194,13 @@ export default function Dashboard() {
                             <div className="mt-4 flex space-x-4">
                                 <button
                                     onClick={() => handleDelete(blog.docId)}
-                                    className="text-red-500 hover:underline"
+                                    className="text-red-700 hover:underline"
                                 >
                                     Delete
                                 </button>
                                 <button
                                     onClick={() => handleEdit(blog)}
-                                    className="text-blue-500 hover:underline"
+                                    className="text-blue-600 hover:underline"
                                 >
                                     Edit
                                 </button>

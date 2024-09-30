@@ -50,7 +50,7 @@ export default function AllBlogs() {
                                 </p>
                                 <Link
                                     to={`/userblogs/${blog.uid}`}
-                                    className="text-blue-500 hover:underline mt-4 block"
+                                    className="text-blue-600 hover:underline mt-4 block text-[17.5px]"
                                 >
                                     View all blogs of this user
                                 </Link>
