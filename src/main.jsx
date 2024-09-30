@@ -6,6 +6,7 @@ import SignUp from './pages/signUp.jsx';
 import Login from './pages/login.jsx';
 import Blogs from './pages/blogs.jsx';
 import Dashboard from './pages/dashboard.jsx';
+import UserBlogs from './pages/userBlogs.jsx';
 
 const router = createBrowserRouter([{
   path: "/",
@@ -22,7 +23,10 @@ const router = createBrowserRouter([{
   }, {
     path: "/dashboard",
     element: <Dashboard />
-  }]
+  }, {
+    path: "userblogs/:uid",
+    element: <UserBlogs />
+  },]
 }])
 
 createRoot(document.getElementById('root')).render(
