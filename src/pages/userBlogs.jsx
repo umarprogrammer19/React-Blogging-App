@@ -3,20 +3,18 @@ import { getData } from "../config/firebase/firebaseMethods";
 import { useParams } from "react-router-dom";
 
 export default function UserBlogs() {
-    const { uid } = useParams(); // Get user ID from the URL
+    const { uid } = useParams();
     const [user, setUser] = useState(null);
     const [blogs, setBlogs] = useState([]);
 
     useEffect(() => {
         const fetchUserBlogs = async () => {
             try {
-                // Fetch user's blogs
                 const data = await getData("blogs", uid);
                 setBlogs(data);
 
-                // Fetch user details
                 const userData = await getData("users", uid);
-                setUser(userData[0]); // Assuming userData returns an array
+                setUser(userData[0]); 
             } catch (error) {
                 console.error("Error fetching user blogs:", error);
             }
