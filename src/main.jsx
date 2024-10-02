@@ -7,6 +7,7 @@ import Login from './pages/login.jsx';
 import Blogs from './pages/blogs.jsx';
 import Dashboard from './pages/dashboard.jsx';
 import UserBlogs from './pages/userBlogs.jsx';
+import Profile from './pages/Profile.jsx';
 
 const router = createBrowserRouter([{
   path: "/",
@@ -26,7 +27,10 @@ const router = createBrowserRouter([{
   }, {
     path: "userblogs/:uid",
     element: <UserBlogs />
-  },]
+  }, {
+    path: "/profile",
+    element: <Profile />
+  }]
 }])
 
 createRoot(document.getElementById('root')).render(

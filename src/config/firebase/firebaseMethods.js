@@ -83,7 +83,6 @@ const getData = (collectionName, uid) => {
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
                 dataArr.push(doc.data());
-                console.log(dataArr);
             });
             if (dataArr.length > 0) {
                 resolve(dataArr);
