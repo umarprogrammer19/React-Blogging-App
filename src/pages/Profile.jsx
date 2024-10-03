@@ -216,7 +216,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-[90vh] bg-gray-300">
+        <div className="flex justify-center items-center h-[90vh] bg-gray-200">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
                 <h2 className="text-3xl font-bold mb-6 text-center">Profile</h2>
 
@@ -244,14 +244,14 @@ const Profile = () => {
                             placeholder="First Name"
                             value={newFirstName}
                             onChange={(e) => setNewFirstName(e.target.value)}
-                            className="mt-4 p-2 border rounded w-full"
+                            className="mt-4 p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                         <input
                             type="text"
                             placeholder="Last Name"
                             value={newLastName}
                             onChange={(e) => setNewLastName(e.target.value)}
-                            className="mt-2 p-2 border rounded w-full"
+                            className="mt-2 p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
 
                         {/* Password Input Section */}
@@ -261,26 +261,26 @@ const Profile = () => {
                             placeholder="Old Password"
                             value={oldPassword}
                             onChange={(e) => setOldPassword(e.target.value)}
-                            className="mt-2 p-2 border rounded w-full"
+                            className="mt-2 p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                         <input
                             type="password"
                             placeholder="New Password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="mt-2 p-2 border rounded w-full"
+                            className="mt-2 p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                         <input
                             type="password"
                             placeholder="Confirm New Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="mt-2 p-2 border rounded w-full"
+                            className="mt-2 p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
 
                         {/* Single Update Button with Loading State */}
                         <button
-                            className={`bg-purple-500 text-white p-2 rounded mt-4 hover:bg-purple-600 focus:outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""
+                            className={`bg-purple-500 text-white p-2 rounded mt-4 hover:bg-purple-600 focus:outline-none transition-colors ${loading ? "opacity-50 cursor-not-allowed" : ""
                                 }`}
                             onClick={handleProfileUpdate}
                             disabled={loading}
@@ -289,7 +289,7 @@ const Profile = () => {
                         </button>
                     </div>
                 ) : (
-                    <p>User not found.</p>
+                    <p className="text-center text-red-500">User not found.</p>
                 )}
             </div>
 
