@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signUpUser, uploadImage,auth } from '../config/firebase/firebaseMethods';
+import { signUpUser, uploadImage, auth } from '../config/firebase/firebaseMethods';
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
@@ -27,19 +27,19 @@ const SignUp = () => {
         event.preventDefault();
         setError('');
         setLoading(true);
-    
+
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match!');
             setLoading(false);
             return;
         }
-    
+
         try {
             const userProfileImageUrl = await uploadImage(formData.profileImage, formData.email);
             if (!userProfileImageUrl) {
                 throw new Error('Image upload failed');
             }
-    
+
             const userData = await signUpUser({
                 email: formData.email,
                 password: formData.password,
@@ -47,13 +47,11 @@ const SignUp = () => {
                 lastName: formData.lastName,
                 profileImage: userProfileImageUrl,
             });
-    
-            console.log("Signed up user:", userData);
-    
+
             // Immediately sign out the user after signing up
             await auth.signOut();
-            navigate('/login'); // Redirect them to login page after signup
-    
+            navigate('/login'); // Redirect to login after signup
+
             // Clear form
             setFormData({
                 firstName: '',
@@ -64,22 +62,19 @@ const SignUp = () => {
                 profileImage: null,
             });
         } catch (error) {
-            console.error('Error during registration:', error);
             setError(error.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
     };
-    
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50 pt-6">
+        <div className="min-h-screen flex flex-col bg-gray-200 pt-6">
             <div className="flex items-center justify-center flex-grow">
                 <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-6">Sign Up</h2>
+                    <h2 className="text-3xl font-bold mb-6">Sign Up</h2>
                     {error && <p className="text-red-500" aria-live="assertive">{error}</p>}
                     <form className="space-y-6" onSubmit={registerUser}>
-
                         {/* First Name */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">First Name</label>
@@ -177,13 +172,13 @@ const SignUp = () => {
                             disabled={loading}
                             className={`w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition ${loading ? 'opacity-50' : ''}`}
                         >
-                            {loading ? 'Signing Up.....' : 'Sign Up'}
+                            {loading ? 'Signing Up...' : 'Sign Up'}
                         </button>
                     </form>
 
                     {/* Login Link */}
                     <div className="mt-4 text-center">
-                        <p className="text-md text-gray-600">
+                        <p className="text-lg text-gray-600">
                             Already have an account?{" "}
                             <Link to="/login" className="text-purple-600 hover:underline">
                                 Login here
