@@ -128,6 +128,7 @@ const uploadImage = async (file, email) => {
 export {
     auth,
     db,
+    storage,
     signUpUser,
     loginUser,
     getData,

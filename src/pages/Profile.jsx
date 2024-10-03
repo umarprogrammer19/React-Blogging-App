@@ -1,13 +1,20 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth, db, getData } from '../config/firebase/firebaseMethods';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { auth, db,storage} from '../config/firebase/firebaseMethods';
+import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
+import { CameraIcon } from '@heroicons/react/solid';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
+    const [userDocId, setUserDocId] = useState(null);
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [newFirstName, setNewFirstName] = useState("");
+    const [newLastName, setNewLastName] = useState("");
+    const [profileImageUrl, setProfileImageUrl] = useState("");
+    const [newProfileImage, setNewProfileImage] = useState(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -24,12 +31,22 @@ const Profile = () => {
 
     const fetchUserData = async (userId) => {
         setLoading(true);
-        console.log("Fetching user data for user ID:", userId);
         try {
-            const data = await getData("users", userId);
-            console.log("Fetched user data:", data);
-            setUser(data[0]);
-            fetchUserBlogs(userId);
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("uid", "==", userId));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const userData = querySnapshot.docs[0].data();
+                const docId = querySnapshot.docs[0].id;
+
+                setUser(userData);
+                setUserDocId(docId);
+                setProfileImageUrl(userData.profileImage);
+                fetchUserBlogs(userId);
+            } else {
+                setError("User not found.");
+            }
         } catch (error) {
             console.error("Error fetching user data:", error);
             setError("Failed to fetch user data.");
@@ -57,6 +74,59 @@ const Profile = () => {
         }
     };
 
+    const updateUserData = async (newData) => {
+        if (userDocId) {
+            try {
+                const userDocRef = doc(db, "users", userDocId);
+                await updateDoc(userDocRef, newData);
+                alert("Profile updated successfully!");
+                fetchUserData(auth.currentUser.uid);
+            } catch (error) {
+                console.error("Error updating user data:", error);
+                setError("Failed to update profile.");
+            }
+        } else {
+            setError("User document ID not found.");
+        }
+    };
+
+    const handleProfileImageSelection = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setNewProfileImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileImageUrl(reader.result); 
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleProfileUpdate = async () => {
+        const updates = {};
+    
+        if (newFirstName) updates.firstName = newFirstName;
+        if (newLastName) updates.lastName = newLastName;
+    
+        if (newProfileImage) {
+            const imageRef = ref(storage, `profileImages/${newProfileImage.name}`); 
+            try {
+                await uploadBytes(imageRef, newProfileImage);
+                const newProfileImageUrl = await getDownloadURL(imageRef); 
+                updates.profileImage = newProfileImageUrl; 
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                setError("Failed to upload profile image.");
+                return; 
+            }
+        }
+    
+        await updateUserData(updates);
+        setNewProfileImage(null);
+        setNewFirstName("");
+        setNewLastName("");
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -75,81 +145,44 @@ const Profile = () => {
                         <div className="relative">
                             <img
                                 className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
-                                src={user.profileImage || "https://via.placeholder.com/150"}
+                                src={profileImageUrl || "https://via.placeholder.com/150"}
                                 alt="Profile"
                             />
-                            <button className="absolute bottom-0 right-0 bg-purple-500 text-white p-2 rounded-full shadow-lg hover:bg-purple-600 focus:outline-none focus:ring">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    className="w-5 h-5"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                            </button>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleProfileImageSelection}
+                                className="absolute bottom-0 right-0 opacity-0 w-10 h-10 cursor-pointer"
+                            />
+                            <CameraIcon
+                                className="absolute bottom-0 right-0 w-10 h-10 text-purple-500 cursor-pointer"
+                                onClick={() => document.querySelector('input[type="file"]').click()}
+                            />
                         </div>
-                        <h3 className="mt-4 text-xl font-semibold">
-                            {user.firstName} {user.lastName}
-                        </h3>
-                        <button className="text-purple-500 hover:underline focus:outline-none mt-1">
-                            Edit Name
+                        <input
+                            type="text"
+                            placeholder="First Name"
+                            value={newFirstName}
+                            onChange={(e) => setNewFirstName(e.target.value)}
+                            className="mt-4 p-2 border rounded w-full"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={newLastName}
+                            onChange={(e) => setNewLastName(e.target.value)}
+                            className="mt-2 p-2 border rounded w-full"
+                        />
+                        <button
+                            className="bg-purple-500 text-white p-2 rounded mt-4 hover:bg-purple-600 focus:outline-none"
+                            onClick={handleProfileUpdate}
+                        >
+                            Update Profile
                         </button>
                     </div>
                 ) : (
                     <p>No user data available</p>
                 )}
-
-                <form className="mt-6">
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700" htmlFor="old-password">
-                            Old password
-                        </label>
-                        <input
-                            type="password"
-                            id="old-password"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                            placeholder="Old password"
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700" htmlFor="new-password">
-                            New Password
-                        </label>
-                        <input
-                            type="password"
-                            id="new-password"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                            placeholder="New password"
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700" htmlFor="repeat-password">
-                            Repeat password
-                        </label>
-                        <input
-                            type="password"
-                            id="repeat-password"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                            placeholder="Repeat password"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
-                    >
-                        Update password
-                    </button>
-                </form>
             </div>
         </div>
     );
