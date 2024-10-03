@@ -129,11 +129,10 @@ const Profile = () => {
         setLoading(true);
         const updates = {};
         let passwordUpdated = false;
-
-        // Profile update logic
+    
         if (newFirstName) updates.firstName = newFirstName;
         if (newLastName) updates.lastName = newLastName;
-
+    
         if (newProfileImage) {
             const imageRef = ref(storage, `profileImages/${newProfileImage.name}`);
             try {
@@ -147,14 +146,14 @@ const Profile = () => {
                 return;
             }
         }
-
+    
         if (oldPassword || newPassword || confirmPassword) {
             if (newPassword !== confirmPassword) {
                 setError("New password and confirm password do not match.");
                 setLoading(false);
                 return;
             }
-
+    
             const user = auth.currentUser;
             if (user) {
                 const credential = EmailAuthProvider.credential(user.email, oldPassword);
@@ -163,7 +162,7 @@ const Profile = () => {
                     await updatePassword(user, newPassword);
                     passwordUpdated = true;
                     setModalMessage("Password updated successfully!");
-                    setIsModalOpen(true); // Show modal for password update
+                    setIsModalOpen(true); 
                 } catch (error) {
                     console.error("Error updating password:", error);
                     setError("Failed to update password. Please check your old password.");
@@ -176,33 +175,45 @@ const Profile = () => {
                 return;
             }
         }
-
+    
         if (Object.keys(updates).length > 0) {
-            await updateUserData(updates);
-
-            const blogUpdates = {};
-            if (newFirstName) blogUpdates.author = newFirstName;
-            if (newProfileImage) blogUpdates.imageUrl = updates.profileImage;
-
-            if (Object.keys(blogUpdates).length > 0) {
-                await updateBlogs(blogUpdates);
+            try {
+                await updateUserData(updates);
+    
+                const updatedUserData = { ...user, ...updates }; 
+                const event = new CustomEvent('userUpdated', { detail: updatedUserData });
+                window.dispatchEvent(event);
+    
+                const blogUpdates = {};
+                if (newFirstName) blogUpdates.author = newFirstName;
+                if (newProfileImage) blogUpdates.imageUrl = updates.profileImage;
+    
+                if (Object.keys(blogUpdates).length > 0) {
+                    await updateBlogs(blogUpdates);
+                }
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                setError("Failed to update profile.");
+                setLoading(false);
+                return;
             }
         }
-
+    
         setNewProfileImage(null);
         setNewFirstName("");
         setNewLastName("");
         setOldPassword("");
         setNewPassword("");
         setConfirmPassword("");
-
+    
         setLoading(false);
+    
         if (!passwordUpdated) {
             setModalMessage("Profile updated successfully!");
             setIsModalOpen(true);
         }
     };
-
+    
     return (
         <div className="flex justify-center items-center h-[90vh] bg-gray-300">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">

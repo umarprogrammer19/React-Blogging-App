@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { auth, getData } from "../config/firebase/firebaseMethods"; 
+import { auth, getData } from "../config/firebase/firebaseMethods";
 
 export default function Navbar() {
     const [user, setUser] = useState(null);
@@ -10,13 +10,22 @@ export default function Navbar() {
         const unsubscribe = auth.onAuthStateChanged(async (userAuth) => {
             if (userAuth) {
                 const userData = await getData("users", userAuth.uid);
-                setUser(userData[0]); 
+                setUser(userData[0]);
             } else {
                 setUser(null);
             }
         });
-        
-        return () => unsubscribe();
+
+        const handleUserUpdate = (event) => {
+            setUser(event.detail); // Update user data from event
+        };
+
+        window.addEventListener('userUpdated', handleUserUpdate);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener('userUpdated', handleUserUpdate);
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -32,7 +41,7 @@ export default function Navbar() {
             </div>
             <div className="flex-none flex items-center space-x-2">
                 {user && (
-                    <span className="text-white text-lg font-semibold cursor-pointer`">
+                    <span className="text-white text-lg font-semibold cursor-pointer">
                         {user.firstName} {user.lastName}
                     </span>
                 )}
@@ -47,7 +56,7 @@ export default function Navbar() {
                             ) : (
                                 <img
                                     alt="Default Avatar"
-                                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" 
+                                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
                                 />
                             )}
                         </div>
@@ -57,6 +66,7 @@ export default function Navbar() {
                         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                         {user ? (
                             <>
+                                <li><Link className="hover:bg-black hover:text-white" to={"/profile"}>Profile</Link></li>
                                 <li><Link className="hover:bg-black hover:text-white" to={"/dashboard"}>Dashboard</Link></li>
                                 <li><Link className="hover:bg-black hover:text-white" to={"/"}>Blogs</Link></li>
                                 <li><button className="hover:bg-black hover:text-white" onClick={handleLogout}>Logout</button></li>
