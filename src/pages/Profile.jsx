@@ -211,6 +211,7 @@ const Profile = () => {
         if (!passwordUpdated) {
             setModalMessage("Profile updated successfully!");
             setIsModalOpen(true);
+            window.location.reload();
         }
     };
 
@@ -293,10 +294,7 @@ const Profile = () => {
             </div>
 
             {/* Modal for notifications */}
-            <Modal isOpen={isModalOpen} onClose={() => {
-                setIsModalOpen(false);
-                window.location.reload();
-            }} message={modalMessage} />
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={modalMessage} />
         </div>
     );
 };
