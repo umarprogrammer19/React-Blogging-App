@@ -6,11 +6,13 @@ const Login = () => {
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
+        setLoading(true); // Start loading
 
         try {
             await loginUser({ email: emailRef.current.value, password: passwordRef.current.value });
@@ -18,6 +20,8 @@ const Login = () => {
         } catch (error) {
             console.error('Error during login:', error);
             setError('Login failed. Please check your credentials and try again.');
+        } finally {
+            setLoading(false); // Stop loading after login attempt
         }
     };
 
@@ -28,7 +32,7 @@ const Login = () => {
                     <h2 className="text-2xl font-bold mb-6">Login</h2>
                     {error && <p className="text-red-500 mb-4">{error}</p>}
                     <form className="space-y-6" onSubmit={handleSubmit}>
-
+                        
                         {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -60,9 +64,10 @@ const Login = () => {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition"
+                            className={`w-full py-3 rounded-lg transition ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'} text-white`}
+                            disabled={loading} // Disable button while loading
                         >
-                            Log In
+                            {loading ? 'Logging in...' : 'Log In'}
                         </button>
                     </form>
 
