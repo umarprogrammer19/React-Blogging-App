@@ -1,9 +1,11 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { auth, db, storage } from '../config/firebase/firebaseMethods';
-import { collection, getDocs, query, where, doc, updateDoc, writeBatch } from 'firebase/firestore'; // Ensure writeBatch is imported
+import { collection, getDocs, query, where, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { CameraIcon } from '@heroicons/react/solid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import Modal from '../components/Modal';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -15,6 +17,11 @@ const Profile = () => {
     const [newLastName, setNewLastName] = useState("");
     const [profileImageUrl, setProfileImageUrl] = useState("");
     const [newProfileImage, setNewProfileImage] = useState(null);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -79,7 +86,6 @@ const Profile = () => {
             try {
                 const userDocRef = doc(db, "users", userDocId);
                 await updateDoc(userDocRef, newData);
-                alert("Profile updated successfully!");
                 fetchUserData(auth.currentUser.uid);
             } catch (error) {
                 console.error("Error updating user data:", error);
@@ -91,7 +97,7 @@ const Profile = () => {
     };
 
     const updateBlogs = async (updates) => {
-        const batch = writeBatch(db); // Initialize the batch here
+        const batch = writeBatch(db);
 
         blogs.forEach((blog) => {
             const blogRef = doc(db, "blogs", blog.docId);
@@ -100,7 +106,6 @@ const Profile = () => {
 
         try {
             await batch.commit();
-            alert("Blogs updated successfully!");
             fetchUserBlogs(auth.currentUser.uid);
         } catch (error) {
             console.error("Error updating blogs:", error);
@@ -121,11 +126,14 @@ const Profile = () => {
     };
 
     const handleProfileUpdate = async () => {
+        setLoading(true);
         const updates = {};
-    
+        let passwordUpdated = false;
+
+        // Profile update logic
         if (newFirstName) updates.firstName = newFirstName;
         if (newLastName) updates.lastName = newLastName;
-    
+
         if (newProfileImage) {
             const imageRef = ref(storage, `profileImages/${newProfileImage.name}`);
             try {
@@ -135,33 +143,65 @@ const Profile = () => {
             } catch (error) {
                 console.error("Error uploading image:", error);
                 setError("Failed to upload profile image.");
+                setLoading(false);
                 return;
             }
         }
-    
-        await updateUserData(updates);
 
-        // Update blog author and imageUrl
-        const blogUpdates = {};
-        if (newFirstName) blogUpdates.author = newFirstName; // or however you want to set the author
-        if (newProfileImage) blogUpdates.imageUrl = updates.profileImage; // Use the new image URL if uploaded
+        if (oldPassword || newPassword || confirmPassword) {
+            if (newPassword !== confirmPassword) {
+                setError("New password and confirm password do not match.");
+                setLoading(false);
+                return;
+            }
 
-        if (Object.keys(blogUpdates).length > 0) {
-            await updateBlogs(blogUpdates);
+            const user = auth.currentUser;
+            if (user) {
+                const credential = EmailAuthProvider.credential(user.email, oldPassword);
+                try {
+                    await reauthenticateWithCredential(user, credential);
+                    await updatePassword(user, newPassword);
+                    passwordUpdated = true;
+                    setModalMessage("Password updated successfully!");
+                    setIsModalOpen(true); // Show modal for password update
+                } catch (error) {
+                    console.error("Error updating password:", error);
+                    setError("Failed to update password. Please check your old password.");
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                setError("User is not logged in.");
+                setLoading(false);
+                return;
+            }
+        }
+
+        if (Object.keys(updates).length > 0) {
+            await updateUserData(updates);
+
+            const blogUpdates = {};
+            if (newFirstName) blogUpdates.author = newFirstName;
+            if (newProfileImage) blogUpdates.imageUrl = updates.profileImage;
+
+            if (Object.keys(blogUpdates).length > 0) {
+                await updateBlogs(blogUpdates);
+            }
         }
 
         setNewProfileImage(null);
         setNewFirstName("");
         setNewLastName("");
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+
+        setLoading(false);
+        if (!passwordUpdated) {
+            setModalMessage("Profile updated successfully!");
+            setIsModalOpen(true);
+        }
     };
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
 
     return (
         <div className="flex justify-center items-center h-[90vh] bg-gray-300">
@@ -201,17 +241,48 @@ const Profile = () => {
                             onChange={(e) => setNewLastName(e.target.value)}
                             className="mt-2 p-2 border rounded w-full"
                         />
+
+                        {/* Password Input Section */}
+                        <h3 className="text-xl font-semibold mt-6">Change Password</h3>
+                        <input
+                            type="password"
+                            placeholder="Old Password"
+                            value={oldPassword}
+                            onChange={(e) => setOldPassword(e.target.value)}
+                            className="mt-2 p-2 border rounded w-full"
+                        />
+                        <input
+                            type="password"
+                            placeholder="New Password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="mt-2 p-2 border rounded w-full"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Confirm New Password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="mt-2 p-2 border rounded w-full"
+                        />
+
+                        {/* Single Update Button with Loading State */}
                         <button
-                            className="bg-purple-500 text-white p-2 rounded mt-4 hover:bg-purple-600 focus:outline-none"
+                            className={`bg-purple-500 text-white p-2 rounded mt-4 hover:bg-purple-600 focus:outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
                             onClick={handleProfileUpdate}
+                            disabled={loading}
                         >
-                            Update Profile
+                            {loading ? "Updating..." : "Update Profile"}
                         </button>
                     </div>
                 ) : (
-                    <p>No user data available</p>
+                    <p>User not found.</p>
                 )}
             </div>
+
+            {/* Modal for notifications */}
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={modalMessage} />
         </div>
     );
 };
