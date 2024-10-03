@@ -14,7 +14,7 @@ export default function UserBlogs() {
                 setBlogs(data);
 
                 const userData = await getData("users", uid);
-                setUser(userData[0]); 
+                setUser(userData[0]);
             } catch (error) {
                 console.error("Error fetching user blogs:", error);
             }
@@ -24,40 +24,10 @@ export default function UserBlogs() {
     }, [uid]);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 flex flex-col lg:flex-row gap-6">
-            {/* Blogs List Section */}
-            <div className="lg:w-3/4 order-2 lg:order-1">
-                <h1 className="text-3xl font-bold mb-8">User's Blogs</h1>
-                <div className="space-y-6">
-                    {blogs.length > 0 ? (
-                        blogs.map((blog,index) => (
-                            <div
-                                key={index}
-                                className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-4"
-                            >
-                                <img
-                                    src={blog.imageUrl}
-                                    alt={blog.title}
-                                    className="w-32 h-24 md:w-40 md:h-28 rounded-lg object-cover"
-                                />
-                                <div className="flex-1">
-                                    <h3 className="text-lg font-semibold">{blog.title}</h3>
-                                    <p className="text-gray-500">
-                                        {blog.author} - {blog.date}
-                                    </p>
-                                    <p className="mt-2 text-gray-600 line-clamp-3">{blog.content}</p>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-500">No blogs found for this user.</p>
-                    )}
-                </div>
-            </div>
-
+        <div className="min-h-screen bg-gray-300 p-6 flex flex-col lg:flex-row gap-6">
             {/* User Profile Section (stays on right for large screens, moves above for small screens) */}
             {user && (
-                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/4 order-1 lg:order-2 flex flex-col items-center ">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/4 order-1 lg:order-1 flex flex-col items-center">
                     <img
                         src={user.profileImage}
                         alt={`${user.firstName} ${user.lastName}`}
@@ -67,6 +37,36 @@ export default function UserBlogs() {
                     <p className="text-gray-500 text-center">{user.email}</p>
                 </div>
             )}
+
+            {/* Blogs List Section */}
+            <div className="lg:w-3/4 order-2 lg:order-2">
+                <h1 className="text-3xl font-bold mb-8 text-center">Blogs From {`${user.firstName} ${user.lastName}`}</h1>
+                <div className="space-y-6">
+                    {blogs.length > 0 ? (
+                        blogs.map((blog, index) => (
+                            <div
+                                key={index}
+                                className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-4"
+                            >
+                                <img
+                                    src={blog.imageUrl || "https://via.placeholder.com/150"}
+                                    alt={blog.title}
+                                    className="w-32 h-24 md:w-40 md:h-28 rounded-lg object-cover mx-auto"
+                                />
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold">{blog.title}</h3>
+                                    <p className="text-gray-500">
+                                        {blog.author} - {new Date(blog.date).toLocaleDateString()}
+                                    </p>
+                                    <p className="mt-2 text-gray-600 line-clamp-3 text-justify">{blog.content}</p>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 text-center">No blogs found for this user.</p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
