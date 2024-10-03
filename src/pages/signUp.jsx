@@ -69,7 +69,7 @@ const SignUp = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-200 pt-6">
+        <div className="min-h-screen flex flex-col bg-gray-300 pt-6">
             <div className="flex items-center justify-center flex-grow">
                 <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                     <h2 className="text-3xl font-bold mb-6">Sign Up</h2>

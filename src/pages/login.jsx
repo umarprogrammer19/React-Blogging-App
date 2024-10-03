@@ -6,7 +6,7 @@ const Login = () => {
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false); 
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
@@ -26,53 +26,86 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-[90vh] flex flex-col bg-gray-300">
             <div className="flex items-center justify-center flex-grow">
                 <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-6">Login</h2>
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
+                    <h2 className="text-3xl font-bold mb-6 text-center">Login</h2>
+
+                    {error && (
+                        <p className="text-red-600 bg-red-100 p-2 rounded mb-4 text-center">
+                            {error}
+                        </p>
+                    )}
+
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                        
+
                         {/* Email */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                Email
+                            </label>
                             <input
                                 id="email"
                                 type="email"
                                 ref={emailRef}
+                                aria-label="Email"
                                 className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Enter your email"
                                 required
-                                aria-describedby="email-description"
                             />
                         </div>
 
                         {/* Password */}
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
                             <input
                                 id="password"
                                 type="password"
                                 ref={passwordRef}
+                                aria-label="Password"
                                 className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Enter your password"
                                 required
-                                aria-describedby="password-description"
                             />
                         </div>
 
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className={`w-full py-3 rounded-lg transition ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'} text-white`}
-                            disabled={loading} // Disable button while loading
+                            disabled={loading}
+                            className={`w-full py-3 rounded-lg transition-all duration-200 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                                loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+                            }`}
                         >
-                            {loading ? 'Logging in...' : 'Log In'}
+                            {loading ? (
+                                <div className="flex justify-center items-center space-x-2">
+                                    <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v8H4z"
+                                        ></path>
+                                    </svg>
+                                    <span>Logging in...</span>
+                                </div>
+                            ) : (
+                                'Log In'
+                            )}
                         </button>
                     </form>
 
                     {/* Signup Link */}
-                    <div className="mt-4 text-center">
+                    <div className="mt-6 text-center">
                         <p className="text-md text-gray-600">
                             Don't have an account?{" "}
                             <Link to="/signup" className="text-purple-600 hover:underline">
