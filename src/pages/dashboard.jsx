@@ -136,38 +136,41 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-gray-200 p-6">
             <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
-            {error && <p className="text-red-600 text-[18px] mb-4">{error}</p>}
+            {error && <p className="text-red-600 text-lg mb-4">{error}</p>}
 
             {/* Blog Publishing Form */}
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <input
-                    type="text"
-                    name="title"
-                    value={form.title}
-                    onChange={handleChange}
-                    className="w-full border border-purple-300 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Blog Title"
-                    disabled={publishing}
-                />
-                <textarea
-                    name="content"
-                    value={form.content}
-                    onChange={handleChange}
-                    className="w-full border border-purple-300 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="What is in your mind"
-                    rows={4}
-                    disabled={publishing}
-                ></textarea>
-                <button
-                    onClick={handlePublish}
-                    className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition"
-                    disabled={publishing}
-                >
-                    {publishing ? "Publishing..." : editingBlogId ? "Update Blog" : "Publish Blog"}
-                </button>
+                <h2 className="text-2xl font-semibold mb-4">{editingBlogId ? "Edit Blog" : "Publish a New Blog"}</h2>
+                <form onSubmit={handlePublish}>
+                    <input
+                        type="text"
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        className="w-full border border-purple-300 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Blog Title"
+                        disabled={publishing}
+                    />
+                    <textarea
+                        name="content"
+                        value={form.content}
+                        onChange={handleChange}
+                        className="w-full border border-purple-300 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="What is in your mind"
+                        rows={4}
+                        disabled={publishing}
+                    ></textarea>
+                    <button
+                        type="submit"
+                        className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition"
+                        disabled={publishing}
+                    >
+                        {publishing ? "Publishing..." : editingBlogId ? "Update Blog" : "Publish Blog"}
+                    </button>
+                </form>
             </div>
 
             {/* Blog List */}
@@ -178,14 +181,14 @@ export default function Dashboard() {
                 blogs.map((blog) => (
                     <div
                         key={blog.docId}
-                        className="bg-white p-6 rounded-lg shadow-md flex items-start space-x-4"
+                        className="bg-white p-4 rounded-lg shadow-md flex items-start mb-4"
                     >
                         <img
-                            src={blog.imageUrl || "default-image-url.jpg"}
+                            src={blog.imageUrl || "https://via.placeholder.com/150"}
                             alt={blog.title}
-                            className="w-16 h-16 rounded-lg object-cover"
+                            className="w-24 h-24 rounded-lg object-cover mr-4"
                         />
-                        <div>
+                        <div className="flex-1">
                             <h3 className="text-lg font-semibold">{blog.title}</h3>
                             <p className="text-gray-500">
                                 {blog.author} - {blog.date}
