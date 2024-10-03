@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signUpUser, uploadImage } from '../config/firebase/firebaseMethods';
+import { signUpUser, uploadImage,auth } from '../config/firebase/firebaseMethods';
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
@@ -27,19 +27,19 @@ const SignUp = () => {
         event.preventDefault();
         setError('');
         setLoading(true);
-
+    
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match!');
             setLoading(false);
             return;
         }
-
+    
         try {
             const userProfileImageUrl = await uploadImage(formData.profileImage, formData.email);
             if (!userProfileImageUrl) {
                 throw new Error('Image upload failed');
             }
-
+    
             const userData = await signUpUser({
                 email: formData.email,
                 password: formData.password,
@@ -47,8 +47,14 @@ const SignUp = () => {
                 lastName: formData.lastName,
                 profileImage: userProfileImageUrl,
             });
-
-            console.log(userData);
+    
+            console.log("Signed up user:", userData);
+    
+            // Immediately sign out the user after signing up
+            await auth.signOut();
+            navigate('/login'); // Redirect them to login page after signup
+    
+            // Clear form
             setFormData({
                 firstName: '',
                 lastName: '',
@@ -57,8 +63,6 @@ const SignUp = () => {
                 confirmPassword: '',
                 profileImage: null,
             });
-
-            navigate('/login');
         } catch (error) {
             console.error('Error during registration:', error);
             setError(error.message || 'Registration failed. Please try again.');
@@ -66,6 +70,7 @@ const SignUp = () => {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50 pt-6">
