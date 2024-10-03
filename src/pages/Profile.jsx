@@ -1,7 +1,7 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth, db,storage} from '../config/firebase/firebaseMethods';
-import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
+import { auth, db, storage } from '../config/firebase/firebaseMethods';
+import { collection, getDocs, query, where, doc, updateDoc, writeBatch } from 'firebase/firestore'; // Ensure writeBatch is imported
 import { CameraIcon } from '@heroicons/react/solid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
@@ -90,13 +90,31 @@ const Profile = () => {
         }
     };
 
+    const updateBlogs = async (updates) => {
+        const batch = writeBatch(db); // Initialize the batch here
+
+        blogs.forEach((blog) => {
+            const blogRef = doc(db, "blogs", blog.docId);
+            batch.update(blogRef, updates);
+        });
+
+        try {
+            await batch.commit();
+            alert("Blogs updated successfully!");
+            fetchUserBlogs(auth.currentUser.uid);
+        } catch (error) {
+            console.error("Error updating blogs:", error);
+            setError("Failed to update blogs.");
+        }
+    };
+
     const handleProfileImageSelection = (event) => {
         const file = event.target.files[0];
         if (file) {
             setNewProfileImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
-                setProfileImageUrl(reader.result); 
+                setProfileImageUrl(reader.result);
             };
             reader.readAsDataURL(file);
         }
@@ -109,19 +127,29 @@ const Profile = () => {
         if (newLastName) updates.lastName = newLastName;
     
         if (newProfileImage) {
-            const imageRef = ref(storage, `profileImages/${newProfileImage.name}`); 
+            const imageRef = ref(storage, `profileImages/${newProfileImage.name}`);
             try {
                 await uploadBytes(imageRef, newProfileImage);
-                const newProfileImageUrl = await getDownloadURL(imageRef); 
-                updates.profileImage = newProfileImageUrl; 
+                const newProfileImageUrl = await getDownloadURL(imageRef);
+                updates.profileImage = newProfileImageUrl;
             } catch (error) {
                 console.error("Error uploading image:", error);
                 setError("Failed to upload profile image.");
-                return; 
+                return;
             }
         }
     
         await updateUserData(updates);
+
+        // Update blog author and imageUrl
+        const blogUpdates = {};
+        if (newFirstName) blogUpdates.author = newFirstName; // or however you want to set the author
+        if (newProfileImage) blogUpdates.imageUrl = updates.profileImage; // Use the new image URL if uploaded
+
+        if (Object.keys(blogUpdates).length > 0) {
+            await updateBlogs(blogUpdates);
+        }
+
         setNewProfileImage(null);
         setNewFirstName("");
         setNewLastName("");
