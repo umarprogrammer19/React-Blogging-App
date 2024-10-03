@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { db, auth, getData } from "../config/firebase/firebaseMethods";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
     const [user, setUser] = useState(null);
@@ -14,6 +15,7 @@ export default function Dashboard() {
         title: "",
         content: "",
     });
+    const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -23,6 +25,7 @@ export default function Dashboard() {
             } else {
                 setUser(null);
                 setBlogs([]);
+                navigate("/login")
             }
         });
         return () => unsubscribe();

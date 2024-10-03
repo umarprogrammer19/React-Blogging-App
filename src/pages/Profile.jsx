@@ -6,6 +6,7 @@ import { CameraIcon } from '@heroicons/react/solid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import Modal from '../components/Modal';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -22,6 +23,7 @@ const Profile = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -31,6 +33,7 @@ const Profile = () => {
             } else {
                 setUser(null);
                 setBlogs([]);
+                navigate("/login");
             }
         });
         return () => unsubscribe();
