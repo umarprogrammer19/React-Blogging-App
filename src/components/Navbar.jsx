@@ -64,7 +64,7 @@ export default function Navbar() {
                             ) : (
                                 <img
                                     alt="Default Avatar"
-                                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                    src="https://w0.peakpx.com/wallpaper/241/855/HD-wallpaper-dark-black-plain-whole.jpg"
                                     className="rounded-full"
                                 />
                             )}

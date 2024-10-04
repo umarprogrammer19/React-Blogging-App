@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyChq4DZ8Cme7OGZWnPT_8Dmj2EyG_zVIr4",
-    authDomain: "react-blogging-app121.firebaseapp.com",
-    projectId: "react-blogging-app121",
-    storageBucket: "react-blogging-app121.appspot.com",
-    messagingSenderId: "157565899165",
-    appId: "1:157565899165:web:640f0986adc7787d1adf74"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
