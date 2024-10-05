@@ -40,7 +40,9 @@ export default function UserBlogs() {
 
             {/* Blogs List Section */}
             <div className="lg:w-3/4 order-2 lg:order-2">
-                <h1 className="text-3xl font-bold mb-8 text-center">Blogs From {`${user.firstName} ${user.lastName}`}</h1>
+                <h1 className="text-3xl font-bold mb-8 text-center">
+                    {user ? `Blogs From ${user.firstName} ${user.lastName}` : "Loading..."}
+                </h1>
                 <div className="space-y-6">
                     {blogs.length > 0 ? (
                         blogs.map((blog, index) => (
